@@ -1,24 +1,11 @@
 import re
 import sys
+from collections import defaultdict
 
 
 def non_overlap(candidate, overlay):
     c1, c2 = candidate
     o1, o2 = overlay
-    if o2 < c1:
-        return [(c1, c2)]
-    elif o1 > c2:
-        return [(c1, c2)]
-    elif o1 > c1 and o2 < c2:
-        return [(c1, o1 - 1), (o2 + 1, c2)]
-    elif o1 > c1 and o2 >= c2:
-        return [(c1, o1 - 1)]
-    elif o1 <= c1 and o2 < c2:
-        return [(o2 + 1, c2)]
-    elif o1 <= c1 and o2 >= c2:
-        return []
-    else:
-        assert False
 
 
 def main():
@@ -41,19 +28,48 @@ def main():
             if ingr in range(s, e + 1):
                 num_fresh += 1
                 break
+    print(1, num_fresh)
 
     # part 2
     total = 0
     for i, (a1, a2) in enumerate(fresh):
         ranges = [(a1, a2)]
-        for b1, b2 in fresh[i + 1 :]:
+        for o1, o2 in fresh[i + 1 :]:
             new_ranges = []
             for c1, c2 in ranges:
-                new_ranges += non_overlap((c1, c2), (b1, b2))
+                if o2 < c1:
+                    new_ranges += [(c1, c2)]
+                elif o1 > c2:
+                    new_ranges += [(c1, c2)]
+                elif o1 > c1 and o2 < c2:
+                    new_ranges += [(c1, o1 - 1), (o2 + 1, c2)]
+                elif o1 > c1 and o2 >= c2:
+                    new_ranges += [(c1, o1 - 1)]
+                elif o1 <= c1 and o2 < c2:
+                    new_ranges += [(o2 + 1, c2)]
+                elif o1 <= c1 and o2 >= c2:
+                    pass
+                else:
+                    assert False
             ranges = new_ranges
         for s, e in ranges:
             total += e - s + 1
-    print(total)
+    print(2, total)
+
+    # part 2 (B2)
+    stops = defaultdict(lambda: 0)
+    for s, e in fresh:
+        stops[s] += 1
+        stops[e] -= 1
+    cur = 0
+    total = 0
+    for n, step in sorted(stops.items()):
+        if cur == 0:
+            start = n
+        cur += step
+        if cur == 0:
+            total += n - start + 1
+    print(2, total)
 
 
 main()
