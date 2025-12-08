@@ -22,6 +22,7 @@ def main():
     )
 
     parent = {b: b for b in boxes}
+    connections = 0
 
     def find(b):
         if parent[b] != b:
@@ -30,10 +31,12 @@ def main():
         return b
 
     def union(b1, b2):
+        nonlocal connections
         b1 = find(b1)
         b2 = find(b2)
 
         if b1 != b2:
+            connections += 1
             parent[b2] = b1
 
     def get_circuits(boxes):
@@ -52,8 +55,7 @@ def main():
             print(l, b, "\t", list(sorted(c[b])))
 
     c = 0
-    while c < 1000:
-        c += 1
+    while connections != 999:
         d, b1, b2 = pairs.pop()
         # print("#" * 100)
         # print(c)
@@ -61,6 +63,7 @@ def main():
         union(b1, b2)
         # show(boxes)
 
+    print(b1[0] * b2[0])
     c, cl = get_circuits(boxes)
     print(math.prod(l for l, _ in cl[-3:]))
 
